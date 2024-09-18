@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prince Consulting - Strategic Business Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #4A90E2, #50E3C2);
+        }
+        .sticky {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4A90E2;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: opacity 0.3s, visibility 0.3s;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .case-study-card {
+            transition: transform 0.3s ease;
+        }
+        .case-study-card:hover {
+            transform: scale(1.03);
+        }
+        .testimonial-card {
+            transition: transform 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+        .swipe-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        .swipe-indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            transition: background-color 0.3s ease;
+        }
+        .swipe-indicator-dot.active {
+            background-color: white;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4A90E2',
+                        secondary: '#50E3C2',
+                        accent: '#FF6B6B',
+                        light: '#F8F9FA',
+                        dark: '#2C3E50'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-light font-sans text-dark">
+    <header class="bg-white fixed w-full z-50 transition-all duration-300" x-data="{ isOpen: false }">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-xl md:text-2xl font-bold text-primary flex items-center">
+                <span class="mr-2 text-accent">
+                    <i class="fas fa-crown"></i>
+                    <i class="fas fa-chart-line" style="font-size: 0.8em; position: relative; top: -5px; left: -8px;"></i>
+                </span>
+                Prince Consulting
+            </a>
+            <button @click="isOpen = !isOpen" class="md:hidden text-primary focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+            <ul class="hidden md:flex space-x-6">
+                <li><a href="#" class="text-dark hover:text-accent transition duration-300">Home</a></li>
+                <li><a href="#services" class="text-dark hover:text-accent transition duration-300">Services</a></li>
+                <li><a href="#about" class="text-dark hover:text-accent transition duration-300">About</a></li>
+                <li><a href="#case-studies" class="text-dark hover:text-accent transition duration-300">Case Studies</a></li>
+                <li><a href="#contact" class="text-dark hover:text-accent transition duration-300">Contact</a></li>
+            </ul>
+        </nav>
+        <div x-show="isOpen" @click.away="isOpen = false" class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40">
+            <div class="bg-white w-64 h-full py-4 px-6 mobile-menu" :class="{ 'open': isOpen }">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xl font-bold text-primary">Menu</span>
+                    <button @click="isOpen = false" class="text-primary focus:outline-none">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <ul class="space-y-4">
+                    <li><a href="#" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">Home</a></li>
+                    <li><a href="#services" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">Services</a></li>
+                    <li><a href="#about" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">About</a></li>
+                    <li><a href="#case-studies" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">Case Studies</a></li>
+                    <li><a href="#contact" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-16">
+        <section id="hero" class="gradient-bg text-white py-20 md:py-32 relative overflow-hidden">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight animate__animated animate__fadeInLeft">Transforming Businesses for the Future</h1>
+                    <p class="text-lg md:text-xl mb-10 animate__animated animate__fadeInLeft animate__delay-1s">Innovative strategies to drive growth, optimize operations, and secure your competitive edge in the digital age.</p>
+                    <a href="#contact" class="bg-accent text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-full hover:bg-white hover:text-accent transition duration-300 animate__animated animate__fadeInUp animate__delay-2s inline-block">Schedule a Consultation</a>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <i class="fas fa-rocket text-7xl md:text-9xl text-accent animate__animated animate__fadeInRight"></i>
+                </div>
+            </div>
+            <div class="swipe-indicator">
+                <span class="swipe-indicator-dot active"></span>
+                <span class="swipe-indicator-dot"></span>
+                <span class="swipe-indicator-dot"></span>
+            </div>
+        </section>
+
+        <section id="services" class="py-16 md:py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-12">Our Services</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300 animate-on-scroll service-card">
+                        <i class="fas fa-chart-line text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Strategic Planning</h3>
+                        <p class="text-gray-600 mb-4">
+                            Develop comprehensive business strategies tailored to your unique goals and market position. Our data-driven approach ensures actionable insights for sustainable growth.
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside">
+                            <li>Market trend analysis</li>
+                            <li>Competitive positioning</li>
+                            <li>Growth roadmap development</li>
+                            <li>Risk assessment and mitigation</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300 animate-on-scroll service-card">
+                        <i class="fas fa-cogs text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Operational Excellence</h3>
+                        <p class="text-gray-600 mb-4">
+                            Optimize your business processes to maximize efficiency, reduce costs, and improve overall performance. We implement cutting-edge methodologies for tangible results.
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside">
+                            <li>Process reengineering</li>
+                            <li>Lean management implementation</li>
+                            <li>Supply chain optimization</li>
+                            <li>Quality management systems</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300 animate-on-scroll service-card">
+                        <i class="fas fa-dollar-sign text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Financial Advisory</h3>
+                        <p class="text-gray-600 mb-4">
+                            Gain expert financial guidance to improve profitability, manage risks, and make informed investment decisions. Our strategies are designed for long-term financial health.
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside">
+                            <li>Financial modeling and forecasting</li>
+                            <li>Capital structure optimization</li>
+                            <li>Mergers and acquisitions support</li>
+                            <li>Risk management strategies</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="bg-primary text-white py-16 md:py-20">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-8 md:mb-0 animate-on-scroll">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">About Prince Consulting</h2>
+                        <p class="text-base md:text-lg mb-6">
+                            With over 15 years of experience, Prince Consulting has been a trusted partner for businesses across various industries. Our team of expert consultants brings a wealth of knowledge and innovative solutions to help your organization thrive in today's dynamic business environment.
+                        </p>
+                        <p class="text-base md:text-lg mb-6">
+                            We believe in building long-term relationships with our clients, understanding their unique challenges, and delivering tailored strategies that drive measurable results. Our approach combines deep industry expertise with cutting-edge analytics to provide actionable insights and sustainable solutions.
+                        </p>
+                        <a href="#contact" class="bg-white text-primary font-bold py-3 px-6 rounded-full hover:bg-accent hover:text-white transition duration-300 inline-block">Learn More About Us</a>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center animate-on-scroll">
+                        <i class="fas fa-users text-7xl md:text-9xl text-accent"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="case-studies" class="py-16 md:py-20 relative overflow-hidden">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-12">Case Studies</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 case-studies-container">
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md hover:shadow-xl transition duration-300 animate-on-scroll case-study-card">
+                        <i class="fas fa-industry text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Global Manufacturing Turnaround</h3>
+                        <p class="text-gray-600 mb-4">
+                            <strong>Client:</strong> Fortune 500 Manufacturing Company<br>
+                            <strong>Challenge:</strong> Declining profits and outdated processes<br>
+                            <strong>Solution:</strong> Implemented lean manufacturing principles and digitalization strategy
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside mb-6">
+                            <li>35% increase in operational efficiency</li>I'll enhance the website with modern design elements, touch gestures, and improved interactivity. I'll use the existing technologies and add some new ones as suggested. Here's the updated code with improvements:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prince Consulting - Strategic Business Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #4A90E2, #50E3C2);
+        }
+        .sticky {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4A90E2;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: opacity 0.3s, visibility 0.3s;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .case-study-card {
+            transition: transform 0.3s ease;
+        }
+        .case-study-card:hover {
+            transform: scale(1.05);
+        }
+        .testimonial-card {
+            transition: transform 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4A90E2',
+                        secondary: '#50E3C2',
+                        accent: '#FF6B6B',
+                        light: '#F8F9FA',
+                        dark: '#2C3E50'
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-light font-sans text-dark">
+    <header class="bg-white fixed w-full z-50 transition-all duration-300" x-data="{ isOpen: false }">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-xl md:text-2xl font-bold text-primary flex items-center">
+                <span class="mr-2 text-accent">
+                    <i class="fas fa-crown"></i>
+                    <i class="fas fa-chart-line" style="font-size: 0.8em; position: relative; top: -5px; left: -8px;"></i>
+                </span>
+                Prince Consulting
+            </a>
+            <button @click="isOpen = !isOpen" class="md:hidden text-primary focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+            <ul class="hidden md:flex space-x-6">
+                <li><a href="#" class="text-dark hover:text-accent transition duration-300">Home</a></li>
+                <li><a href="#services" class="text-dark hover:text-accent transition duration-300">Services</a></li>
+                <li><a href="#about" class="text-dark hover:text-accent transition duration-300">About</a></li>
+                <li><a href="#case-studies" class="text-dark hover:text-accent transition duration-300">Case Studies</a></li>
+                <li><a href="#contact" class="text-dark hover:text-accent transition duration-300">Contact</a></li>
+            </ul>
+        </nav>
+        <div x-show="isOpen" @click.away="isOpen = false" class="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40">
+            <div class="bg-white w-64 h-full py-4 px-6 mobile-menu" :class="{ 'open': isOpen }">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xl font-bold text-primary">Menu</span>
+                    <button @click="isOpen = false" class="text-primary focus:outline-none">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <ul class="space-y-4">
+                    <li><a href="#" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">Home</a></li>
+                    <li><a href="#services" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">Services</a></li>
+                    <li><a href="#about" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">About</a></li>
+                    <li><a href="#case-studies" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">Case Studies</a></li>
+                    <li><a href="#contact" @click="isOpen = false" class="block text-dark hover:text-accent transition duration-300">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-16">
+        <section id="hero" class="gradient-bg text-white py-20 md:py-32">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight animate__animated animate__fadeInLeft">Transforming Businesses for the Future</h1>
+                    <p class="text-lg md:text-xl mb-10 animate__animated animate__fadeInLeft animate__delay-1s">Innovative strategies to drive growth, optimize operations, and secure your competitive edge in the digital age.</p>
+                    <a href="#contact" class="bg-accent text-white font-bold py-3 px-6 md:py-4 md:px-8 rounded-full hover:bg-white hover:text-accent transition duration-300 animate__animated animate__fadeInUp animate__delay-2s inline-block">Schedule a Consultation</a>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <i class="fas fa-rocket text-7xl md:text-9xl text-accent animate__animated animate__fadeInRight"></i>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="py-16 md:py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-12">Our Services</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md service-card animate-on-scroll">
+                        <i class="fas fa-chart-line text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Strategic Planning</h3>
+                        <p class="text-gray-600 mb-4">
+                            Develop comprehensive business strategies tailored to your unique goals and market position. Our data-driven approach ensures actionable insights for sustainable growth.
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside">
+                            <li>Market trend analysis</li>
+                            <li>Competitive positioning</li>
+                            <li>Growth roadmap development</li>
+                            <li>Risk assessment and mitigation</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md service-card animate-on-scroll">
+                        <i class="fas fa-cogs text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Operational Excellence</h3>
+                        <p class="text-gray-600 mb-4">
+                            Optimize your business processes to maximize efficiency, reduce costs, and improve overall performance. We implement cutting-edge methodologies for tangible results.
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside">
+                            <li>Process reengineering</li>
+                            <li>Lean management implementation</li>
+                            <li>Supply chain optimization</li>
+                            <li>Quality management systems</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md service-card animate-on-scroll">
+                        <i class="fas fa-dollar-sign text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Financial Advisory</h3>
+                        <p class="text-gray-600 mb-4">
+                            Gain expert financial guidance to improve profitability, manage risks, and make informed investment decisions. Our strategies are designed for long-term financial health.
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside">
+                            <li>Financial modeling and forecasting</li>
+                            <li>Capital structure optimization</li>
+                            <li>Mergers and acquisitions support</li>
+                            <li>Risk management strategies</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="bg-primary text-white py-16 md:py-20">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-8 md:mb-0 animate-on-scroll">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">About Prince Consulting</h2>
+                        <p class="text-base md:text-lg mb-6">
+                            With over 15 years of experience, Prince Consulting has been a trusted partner for businesses across various industries. Our team of expert consultants brings a wealth of knowledge and innovative solutions to help your organization thrive in today's dynamic business environment.
+                        </p>
+                        <p class="text-base md:text-lg mb-6">
+                            We believe in building long-term relationships with our clients, understanding their unique challenges, and delivering tailored strategies that drive measurable results. Our approach combines deep industry expertise with cutting-edge analytics to provide actionable insights and sustainable solutions.
+                        </p>
+                        <a href="#contact" class="bg-white text-primary font-bold py-3 px-6 rounded-full hover:bg-accent hover:text-white transition duration-300 inline-block">Learn More About Us</a>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center animate-on-scroll">
+                        <i class="fas fa-users text-7xl md:text-9xl text-accent"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="case-studies" class="py-16 md:py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-12">Case Studies</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="case-studies-container">
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md case-study-card animate-on-scroll">
+                        <i class="fas fa-industry text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Global Manufacturing Turnaround</h3>
+                        <p class="text-gray-600 mb-4">
+                            <strong>Client:</strong> Fortune 500 Manufacturing Company<br>
+                            <strong>Challenge:</strong> Declining profits and outdated processes<br>
+                            <strong>Solution:</strong> Implemented lean manufacturing principles and digitalization strategy
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside mb-6">
+                            <li>35% increase in operational efficiency</li>
+                            <li>20% reduction in production costs</li>
+                            <li>15% improvement in product quality</li>
+                            <li>$50M annual savings achieved</li>
+                        </ul>
+                        <a href="#" class="text-primary hover:text-accent transition duration-300">Read Full Case Study →</a>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md case-study-card animate-on-scroll">
+                        <i class="fas fa-shopping-cart text-4xl md:text-5xl text-primary mb-6"></i>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">E-commerce Expansion Strategy</h3>
+                        <p class="text-gray-600 mb-4">
+                            <strong>Client:</strong> Mid-size Retail Chain<br>
+                            <strong>Challenge:</strong> Stagnant growth in traditional retail markets<br>
+                            <strong>Solution:</strong> Developed omnichannel strategy with focus on e-commerce
+                        </p>
+                        <ul class="text-gray-600 list-disc list-inside mb-6">
+                            <li>120% increase in online sales within 12 months</li>
+                            <li>30% growth in overall revenue</li>
+                            <li>45% increase in customer retention rate</li>
+                            <li>Successful expansion into 3 new international markets</li>
+                        </ul>
+                        <a href="#" class="text-primary hover:text-accent transition duration-300">Read Full Case Study →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="bg-light py-16 md:py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-12">What Our Clients Say</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md testimonial-card animate-on-scroll">
+                        <p class="text-gray-600 mb-6 italic">"Prince Consulting's strategic insights and hands-on approach transformed our operations, leading to a 30% increase in productivity and significant cost savings. Their team's dedication and expertise were instrumental in our success."</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-user-circle text-3xl md:text-4xl text-primary mr-4"></i>
+                            <div>
+                                <h4 class="font-bold">Sarah Johnson</h4>
+                                <p class="text-gray-600">CEO, TechInnovate Inc.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 md:p-8 rounded-lg shadow-md testimonial-card animate-on-scroll">
+                        <p class="text-gray-600 mb-6 italic">"The team at Prince Consulting provided invaluable guidance during our market expansion. Their expertise and dedication were crucial to our success in entering new territories and achieving a 40% growth in revenue."</p>
+                        <div class="flex items-center">
+                            <i class="fas fa-user-circle text-3xl md:text-4xl text-primary mr-4"></i>
+                            <div>
+                                <h4 class="font-bold">Michael Chang</h4>
+                                <p class="text-gray-600">COO, Global Retail Solutions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="gradient-bg text-white py-16 md:py-20">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-10 md:mb-12">Get in Touch</h2>
+                <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-8">
+                    <form class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-gray-700 mb-2">Name</label>
+                                <input type="text" id="name" name="name" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            </div>
+                            <div>
+                                <label for="email" class="block text-gray-700 mb-2">Email</label>
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="subject" class="block text-gray-700 mb-2">Subject</label>
+                            <input type="text" id="subject" name="subject" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        </div>
+                        <div>
+                            <label for="message" class="block text-gray-700 mb-2">Message</label>
+                            <textarea id="message" name="message" rows="4" class="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary" required></textarea>
+                        </div>
+                        <button type="submit" class="bg-primary text-white font-bold py-3 px-6 rounded-full hover:bg-accent transition duration-300 w-full">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-4 flex items-center">
+                        <span class="mr-2 text-accent">
+                            <i class="fas fa-crown"></i>
+                            <i class="fas fa-chart-line" style="font-size: 0.8em; position: relative; top: -5px; left: -8px;"></i>
+                        </span>
+                        Prince Consulting
+                    </h3>
+                    <p class="text-gray-400">Empowering businesses to achieve sustainable success through innovative strategies and expert consulting.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition duration-300">Home</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-accent transition duration-300">Services</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-accent transition duration-300">About Us</a></li>
+                        <li><a href="#case-studies" class="text-gray-400 hover:text-accent transition duration-300">Case Studies</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-accent transition duration-300">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Contact Us</h4>
+                    <p class="text-gray-400"><i class="fas fa-map-marker-alt mr-2"></i>123 Business Avenue, New York, NY 10001</p>
+                    <p class="text-gray-400"><i class="fas fa-phone mr-2"></i>(555) 123-4567</p>
+                    <p class="text-gray-400"><i class="fas fa-envelope mr-2"></i>info@princeconsulting.com</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-accent transition duration-300"><i class="fab fa-linkedin text-2xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-accent transition duration-300"><i class="fab fa-twitter text-2xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-accent transition duration-300"><i class="fab fa-facebook text-2xl"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-700 text-center">
+                <p class="text-gray-400">&copy; 2023 Prince Consulting. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button id="back-to-top" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // Sticky header
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('sticky', window.scrollY > 0);
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Back to top button
+        const backToTopButton = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('visible');
+            } else {
+                backToTopButton.classList.remove('visible');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Mobile menu
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const mobileMenuToggle = document.querySelector('button[aria-label="Toggle menu"]');
+        const mobileMenuClose = document.querySelector('.mobile-menu button');
+
+        mobileMenuToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+        });
+
+        mobileMenuClose.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+        // Enhanced animations using GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.utils.toArray('.animate-on-scroll').forEach((element) => {
+            gsap.from(element, {
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: element,
+                    start: 'top 80%',
+                    end: 'bottom 20%',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+        });
+
+        // Form submission (you'll need to implement the actual form submission logic)
+        const form = document.querySelector('form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Add your form submission logic here
+            alert('Form submitted successfully!');
+            form.reset();
+        });
+
+        // Touch gestures for case studies
+        const caseStudiesContainer = document.getElementById('case-studies-container');
+        const hammer = new Hammer(caseStudiesContainer);
+
+        let currentIndex = 0;
+        const caseStudies = caseStudiesContainer.children;
+
+        hammer.on('swipeleft swiperight', (ev) => {
+            if (ev.type === 'swipeleft') {
+                currentIndex = Math.min(currentIndex + 1, caseStudies.length - 1);
+            } else {
+                currentIndex = Math.max(currentIndex - 1, 0);
+            }
+            updateCaseStudiesVisibility();
+        });
+
+        function updateCaseStudiesVisibility() {
+            for (let i = 0; i < caseStudies.length; i++) {
+                if (i === currentIndex) {
+                    caseStudies[i].style.display = 'block';
+                } else {
+                    caseStudies[i].style.display = 'none';
+                }
+            }
+        }
+
+        // Initialize case studies visibility
+        updateCaseStudiesVisibility();
+
+        // Animated infographics for case studies
+        const caseStudyCards = document.querySelectorAll('.case-study-card');
+        caseStudyCards.forEach(card => {
+            const stats = card.querySelectorAll('ul li');
+            stats.forEach((stat, index) => {
+                gsap.from(stat, {
+                    opacity: 0,
+                    x: -20,
+                    duration: 0.5,
+                    delay: index * 0.2,
+                    scrollTrigger: {
+                        trigger: card,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            });
+        });
+
+        // Hover effects on service cards
+        const serviceCards = document.querySelectorAll('.service-card');
+        serviceCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                gsap.to(card, { scale: 1.05, duration: 0.3 });
+            });
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, { scale: 1, duration: 0.3 });
+            });
+        });
+    </script>
+</body>
+</html>
